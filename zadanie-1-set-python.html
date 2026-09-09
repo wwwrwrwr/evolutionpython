@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Задание 1. Эволюция сетевого взаимодействия в Python</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#ECEEE8;
+    --panel:#F6F7F3;
+    --ink:#16232C;
+    --muted:#63757E;
+    --wire:#0E6E63;
+    --stall:#A8442A;
+    --hair:#C7CDC6;
+    --sans:"IBM Plex Sans","Segoe UI",Arial,sans-serif;
+    --mono:"IBM Plex Mono","Cascadia Mono",Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:17px;
+    line-height:1.62;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px 96px}
+
+  /* ——— шапка ——— */
+  header{padding:72px 0 40px;position:relative}
+  .kicker{font-size:13px;letter-spacing:.02em;color:var(--muted);margin:0 0 18px}
+  h1{
+    font-size:clamp(30px,5.2vw,52px);
+    line-height:1.06;
+    font-weight:600;
+    letter-spacing:-.022em;
+    margin:0 0 22px;
+    max-width:15ch;
+  }
+  .lead{max-width:62ch;font-size:19px;color:#26343D;margin:0 0 28px}
+  .goal{
+    border-left:3px solid var(--wire);
+    padding:10px 0 10px 18px;
+    max-width:62ch;
+    font-size:16px;
+    color:#26343D;
+  }
+  .goal b{font-weight:600}
+
+  /* ——— раздел на «проводе» ——— */
+  .section{
+    display:grid;
+    grid-template-columns:56px minmax(0,1fr);
+    padding-top:56px;
+  }
+  .rail{position:relative}
+  .rail::before{
+    content:"";
+    position:absolute;
+    left:11px;top:0;bottom:-56px;
+    width:2px;background:var(--hair);
+  }
+  .section:last-of-type .rail::before{bottom:auto;height:34px}
+  .node{
+    position:absolute;left:0;top:16px;
+    width:24px;height:24px;border-radius:50%;
+    background:var(--paper);
+    border:2px solid var(--wire);
+    display:grid;place-items:center;
+    font-family:var(--mono);font-size:12px;color:var(--wire);
+  }
+  .body{min-width:0}
+  h2{
+    font-size:clamp(22px,3.2vw,30px);
+    line-height:1.18;
+    font-weight:600;
+    letter-spacing:-.015em;
+    margin:12px 0 6px;
+    max-width:24ch;
+  }
+  .q{color:var(--muted);font-size:15px;margin:0 0 22px;max-width:60ch}
+  p{max-width:66ch}
+  h3{font-size:17px;font-weight:600;margin:32px 0 8px}
+  ul{max-width:66ch;padding-left:20px}
+  li{margin:6px 0}
+  code{
+    font-family:var(--mono);font-size:.88em;
+    background:var(--panel);
+    border:1px solid var(--hair);
+    border-radius:3px;
+    padding:1px 5px;
+    color:#0B4A45;
+  }
+  pre{
+    font-family:var(--mono);font-size:13.5px;line-height:1.62;
+    background:var(--panel);
+    border:1px solid var(--hair);
+    border-left:3px solid var(--wire);
+    padding:16px 18px;
+    overflow-x:auto;
+    margin:18px 0;
+  }
+  pre code{background:none;border:0;padding:0;color:inherit}
+  .cmt{color:var(--muted)}
+
+  figure{margin:26px 0 8px}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  svg{display:block;width:100%;min-width:560px;height:auto}
+  figcaption{font-size:14px;color:var(--muted);margin-top:10px;max-width:60ch}
+
+  table{border-collapse:collapse;width:100%;margin:22px 0;font-size:15.5px}
+  th,td{text-align:left;padding:10px 12px 10px 0;border-bottom:1px solid var(--hair);vertical-align:top}
+  th{font-weight:600;font-size:14px;color:var(--muted)}
+  td:first-child{font-weight:500;white-space:nowrap;padding-right:22px}
+
+  .takeaway{
+    background:var(--panel);
+    border:1px solid var(--hair);
+    padding:16px 18px;
+    margin:26px 0 0;
+    font-size:16px;
+    max-width:66ch;
+  }
+  .takeaway p{margin:0;max-width:none}
+
+  footer{
+    margin-top:72px;padding-top:28px;
+    border-top:1px solid var(--hair);
+    color:var(--muted);font-size:15px;
+  }
+  footer ul{max-width:66ch}
+  a{color:var(--wire)}
+
+  @media (max-width:640px){
+    body{font-size:16px}
+    .section{grid-template-columns:34px minmax(0,1fr)}
+    .rail::before{left:5px}
+    .node{width:14px;height:14px;font-size:0;top:20px;border-width:2px}
+    .wrap{padding:0 16px 64px}
+    header{padding:44px 0 24px}
+  }
+  @media print{
+    body{background:#fff}
+    .section{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="kicker">Разработка кода информационных ресурсов · Тема 1 · Серверное программирование</p>
+  <p>Выполнили студенты Падуков И.И. и Агизов И. Д. группы 454</p>
+  <h1>Эволюция сетевого взаимодействия в Python</h1>
+  <p class="lead">От системного вызова <code>socket()</code> до постоянного двустороннего канала: как один и тот же TCP-поток байтов постепенно оброс протоколами, моделями обработки запросов и асинхронностью.</p>
+  <p class="goal"><b>Цель:</b> понять, как Python работает с сетью на низком и высоком уровнях. Ниже — краткий отчёт по четырём вопросам исследования, каждый со схемой.</p>
+</header>
+
+<!-- 1 -->
+<section class="section">
+  <div class="rail"><div class="node">1</div></div>
+  <div class="body">
+    <h2>Модуль <code>socket</code>: обмен данными между клиентом и сервером</h2>
+    <p class="q">Как работает модуль socket в Python? Концептуальная схема обмена данными.</p>
+
+    <p>Модуль <code>socket</code> — это тонкая обёртка над системными вызовами BSD-сокетов ядра ОС. Python почти ничего не добавляет от себя: он передаёт вызовы <code>bind</code>, <code>listen</code>, <code>accept</code>, <code>send</code>, <code>recv</code> в ядро и возвращает результат. Сокет — это дескриптор, через который процесс читает и пишет байты; адресуется он парой <code>(IP, порт)</code>.</p>
+
+    <p>Чаще всего используют семейство <code>AF_INET</code> (IPv4) и тип <code>SOCK_STREAM</code> (TCP) — надёжный упорядоченный поток байтов. Альтернатива — <code>SOCK_DGRAM</code> (UDP): отдельные датаграммы без гарантии доставки и порядка.</p>
+
+    <figure>
+      <div class="scroll">
+      <svg viewBox="0 0 720 470" role="img" aria-label="Схема обмена данными между клиентом и сервером через сокеты">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--wire)"/>
+          </marker>
+          <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--stall)"/>
+          </marker>
+        </defs>
+        <g font-family="IBM Plex Sans, sans-serif" font-size="13" fill="var(--ink)">
+          <!-- заголовки -->
+          <rect x="70" y="14" width="140" height="30" fill="var(--panel)" stroke="var(--hair)"/>
+          <text x="140" y="34" text-anchor="middle" font-size="14" font-weight="600">Клиент</text>
+          <rect x="510" y="14" width="140" height="30" fill="var(--panel)" stroke="var(--hair)"/>
+          <text x="580" y="34" text-anchor="middle" font-size="14" font-weight="600">Сервер</text>
+          <!-- линии жизни -->
+          <line x1="140" y1="44" x2="140" y2="450" stroke="var(--hair)" stroke-width="2"/>
+          <line x1="580" y1="44" x2="580" y2="450" stroke="var(--hair)" stroke-width="2"/>
+
+          <!-- подготовка сервера -->
+          <text x="596" y="76" font-family="IBM Plex Mono, monospace" fill="var(--wire)">socket()</text>
+          <text x="596" y="102" font-family="IBM Plex Mono, monospace" fill="var(--wire)">bind(("0.0.0.0", 8080))</text>
+          <text x="596" y="128" font-family="IBM Plex Mono, monospace" fill="var(--wire)">listen(128)</text>
+          <text x="596" y="154" font-family="IBM Plex Mono, monospace" fill="var(--wire)">accept()</text>
+          <text x="596" y="172" font-size="12" fill="var(--muted)">ждёт подключения</text>
+
+          <text x="124" y="76" text-anchor="end" font-family="IBM Plex Mono, monospace" fill="var(--wire)">socket()</text>
+          <text x="124" y="154" text-anchor="end" font-family="IBM Plex Mono, monospace" fill="var(--wire)">connect()</text>
+
+          <!-- соединение -->
+          <line x1="146" y1="182" x2="572" y2="182" stroke="var(--wire)" stroke-width="1.6" marker-end="url(#ar)"/>
+          <text x="360" y="176" text-anchor="middle" font-size="12">TCP-рукопожатие: SYN → SYN-ACK → ACK</text>
+          <line x1="574" y1="212" x2="148" y2="212" stroke="var(--wire)" stroke-width="1.6" marker-end="url(#ar)" stroke-dasharray="5 4"/>
+          <text x="360" y="206" text-anchor="middle" font-size="12">соединение установлено, accept() вернул новый сокет</text>
+
+          <!-- обмен -->
+          <line x1="146" y1="266" x2="572" y2="266" stroke="var(--wire)" stroke-width="1.6" marker-end="url(#ar)"/>
+          <text x="360" y="260" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12">send(b"PING\n")</text>
+          <text x="596" y="290" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--wire)">recv(1024)</text>
+
+          <line x1="574" y1="326" x2="148" y2="326" stroke="var(--wire)" stroke-width="1.6" marker-end="url(#ar)"/>
+          <text x="360" y="320" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="12">send(b"PONG\n")</text>
+          <text x="124" y="350" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="12" fill="var(--wire)">recv(1024)</text>
+
+          <!-- буферы -->
+          <rect x="250" y="374" width="220" height="30" fill="var(--panel)" stroke="var(--hair)"/>
+          <text x="360" y="394" text-anchor="middle" font-size="12" fill="var(--muted)">ядро ОС: буферы приёма и отправки</text>
+
+          <!-- закрытие -->
+          <line x1="146" y1="436" x2="572" y2="436" stroke="var(--stall)" stroke-width="1.6" marker-end="url(#arb)"/>
+          <text x="360" y="430" text-anchor="middle" font-size="12" fill="var(--stall)">close() → FIN, соединение закрыто</text>
+        </g>
+      </svg>
+      </div>
+      <figcaption>Схема 1. Жизненный цикл TCP-соединения. Слушающий сокет сервера остаётся на месте, а <code>accept()</code> порождает отдельный сокет на каждого клиента.</figcaption>
+    </figure>
+
+    <pre><code><span class="cmt"># сервер</span>
+import socket
+
+srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+srv.bind(("0.0.0.0", 8080))
+srv.listen(128)
+
+while True:
+    conn, addr = srv.accept()      <span class="cmt"># блокируется до подключения</span>
+    with conn:
+        data = conn.recv(1024)     <span class="cmt"># до 1024 байт, может вернуть меньше</span>
+        conn.sendall(b"PONG\n")
+
+<span class="cmt"># клиент</span>
+cli = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+cli.connect(("127.0.0.1", 8080))
+cli.sendall(b"PING\n")
+print(cli.recv(1024))
+cli.close()</code></pre>
+
+    <div class="takeaway">
+      <p>Главное следствие потоковой природы TCP: границ сообщений не существует. <code>recv(1024)</code> может вернуть половину сообщения или сразу два, поэтому любой прикладной протокол сам определяет границы — через длину в заголовке, разделитель <code>\n</code> или фиксированный размер. Именно из этой задачи и вырастают HTTP и WebSocket.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="section">
+  <div class="rail"><div class="node">2</div></div>
+  <div class="body">
+    <h2>Блокирующие и неблокирующие сокеты</h2>
+    <p class="q">В чём разница между блокирующими и неблокирующими сокетами?</p>
+
+    <p>По умолчанию сокет блокирующий: <code>accept()</code>, <code>recv()</code> и <code>send()</code> не возвращают управление, пока операция не станет возможной. Поток при этом ничего не делает — он снят с процессора и ждёт события от ядра. Код получается линейным и понятным, но один поток обслуживает ровно одно соединение.</p>
+
+    <p>После <code>sock.setblocking(False)</code> те же вызовы возвращаются мгновенно: если данных нет, поднимается <code>BlockingIOError</code> вместо ожидания. Опрашивать сокеты в цикле бессмысленно — процессор сгорит впустую, поэтому неблокирующие сокеты всегда идут в паре с механизмом уведомления о готовности: <code>select</code>, <code>poll</code>, <code>epoll</code> (Linux), <code>kqueue</code> (BSD/macOS). В Python это модуль <code>selectors</code>, а поверх него — <code>asyncio</code>.</p>
+
+    <figure>
+      <div class="scroll">
+      <svg viewBox="0 0 720 300" role="img" aria-label="Сравнение блокирующего потока и неблокирующего цикла событий">
+        <g font-family="IBM Plex Sans, sans-serif" font-size="12.5" fill="var(--ink)">
+          <text x="0" y="18" font-size="13.5" font-weight="600">Блокирующий сокет, один поток</text>
+          <line x1="0" y1="112" x2="720" y2="112" stroke="var(--hair)"/>
+          <text x="0" y="128" font-size="11.5" fill="var(--muted)">время →</text>
+
+          <rect x="0" y="34" width="250" height="30" fill="#F0DED6" stroke="var(--stall)"/>
+          <text x="125" y="54" text-anchor="middle" fill="var(--stall)">recv(A) — поток спит 200 мс</text>
+          <rect x="250" y="34" width="90" height="30" fill="var(--panel)" stroke="var(--hair)"/>
+          <text x="295" y="54" text-anchor="middle">ответ A</text>
+          <rect x="340" y="34" width="200" height="30" fill="#F0DED6" stroke="var(--stall)"/>
+          <text x="440" y="54" text-anchor="middle" fill="var(--stall)">recv(B) — снова ожидание</text>
+          <rect x="540" y="34" width="90" height="30" fill="var(--panel)" stroke="var(--hair)"/>
+          <text x="585" y="54" text-anchor="middle">ответ B</text>
+
+          <line x1="120" y1="70" x2="120" y2="98" stroke="var(--stall)" stroke-dasharray="4 3"/>
+          <text x="126" y="92" font-size="11.5" fill="var(--stall)">данные B пришли сюда, но лежат в буфере до строки recv(B)</text>
+
+          <text x="0" y="176" font-size="13.5" font-weight="600">Неблокирующие сокеты + селектор готовности</text>
+          <line x1="0" y1="272" x2="720" y2="272" stroke="var(--hair)"/>
+          <text x="0" y="288" font-size="11.5" fill="var(--muted)">время →</text>
+
+          <rect x="0" y="194" width="110" height="30" fill="var(--panel)" stroke="var(--hair)"/>
+          <text x="55" y="214" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5">select()</text>
+          <rect x="110" y="194" width="90" height="30" fill="#D6E8E2" stroke="var(--wire)"/>
+          <text x="155" y="214" text-anchor="middle" fill="#0B4A45">ответ B</text>
+          <rect x="200" y="194" width="80" height="30" fill="var(--panel)" stroke="var(--hair)"/>
+          <text x="240" y="214" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5">select()</text>
+          <rect x="280" y="194" width="90" height="30" fill="#D6E8E2" stroke="var(--wire)"/>
+          <text x="325" y="214" text-anchor="middle" fill="#0B4A45">ответ A</text>
+          <rect x="370" y="194" width="80" height="30" fill="var(--panel)" stroke="var(--hair)"/>
+          <text x="410" y="214" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5">select()</text>
+          <rect x="450" y="194" width="90" height="30" fill="#D6E8E2" stroke="var(--wire)"/>
+          <text x="495" y="214" text-anchor="middle" fill="#0B4A45">ответ C</text>
+          <text x="556" y="214" font-size="11.5" fill="var(--muted)">…один поток, сотни соединений</text>
+        </g>
+      </svg>
+      </div>
+      <figcaption>Схема 2. Ожидание никуда не исчезает — оно переносится в одну точку, где ядро сообщает сразу обо всех готовых сокетах.</figcaption>
+    </figure>
+
+    <pre><code>import selectors, socket
+
+sel = selectors.DefaultSelector()   <span class="cmt"># epoll на Linux</span>
+srv.setblocking(False)
+sel.register(srv, selectors.EVENT_READ)
+
+while True:
+    for key, _ in sel.select():     <span class="cmt"># единственная точка ожидания</span>
+        if key.fileobj is srv:
+            conn, _ = srv.accept()
+            conn.setblocking(False)
+            sel.register(conn, selectors.EVENT_READ)
+        else:
+            data = key.fileobj.recv(1024)   <span class="cmt"># данные точно есть</span>
+            ...</code></pre>
+
+    <table>
+      <tr><th>Критерий</th><th>Блокирующий</th><th>Неблокирующий</th></tr>
+      <tr><td>Поведение вызова</td><td>ждёт готовности</td><td>сразу возвращается или <code>BlockingIOError</code></td></tr>
+      <tr><td>Модель кода</td><td>линейный, «сверху вниз»</td><td>цикл событий и колбэки / <code>async</code></td></tr>
+      <tr><td>Цена соединения</td><td>поток или процесс (≈8 МБ стека)</td><td>объект в памяти (килобайты)</td></tr>
+      <tr><td>Где хорош</td><td>мало соединений, тяжёлые вычисления</td><td>много соединений, ожидание ввода-вывода</td></tr>
+    </table>
+
+    <p>Промежуточный вариант — <code>settimeout(n)</code>: сокет остаётся блокирующим, но ожидание ограничено и по истечении времени возбуждается <code>socket.timeout</code>.</p>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="section">
+  <div class="rail"><div class="node">3</div></div>
+  <div class="body">
+    <h2>HTTP-сервер и модели обработки запросов</h2>
+    <p class="q">Что такое HTTP-сервер и как он обрабатывает входящие запросы?</p>
+
+    <p>HTTP-сервер — это программа поверх обычного TCP-сокета, которая умеет разбирать текстовый протокол HTTP. Она принимает соединение, читает стартовую строку (<code>GET /page HTTP/1.1</code>), заголовки до пустой строки, при необходимости тело по <code>Content-Length</code>, вызывает прикладной код и отправляет обратно статус, заголовки и тело. Модель — «запрос-ответ»: инициатива всегда у клиента, сервер сам ничего не присылает.</p>
+
+    <pre><code>HTTP/1.1 200 OK          <span class="cmt"># всё это — просто байты в TCP-сокете</span>
+Content-Type: text/plain; charset=utf-8
+Content-Length: 5
+
+hello</code></pre>
+
+    <p>Различия между серверами начинаются там, где запросов становится много. Обработка одного запроса — это в основном ожидание: чтение из сети, поход в базу, чтение файла. Три классических способа распорядиться этим ожиданием:</p>
+
+    <figure>
+      <div class="scroll">
+      <svg viewBox="0 0 720 250" role="img" aria-label="Три модели обработки запросов: процесс на запрос, пул потоков, цикл событий">
+        <g font-family="IBM Plex Sans, sans-serif" font-size="12" fill="var(--ink)">
+          <!-- 1 -->
+          <text x="0" y="16" font-size="13" font-weight="600">Процесс на запрос</text>
+          <rect x="0" y="30" width="200" height="26" fill="var(--panel)" stroke="var(--hair)"/>
+          <text x="100" y="47" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5">accept() → fork()</text>
+          <g>
+            <rect x="0" y="80" width="60" height="46" fill="#F0DED6" stroke="var(--stall)"/>
+            <text x="30" y="100" text-anchor="middle" font-size="11">процесс</text>
+            <text x="30" y="116" text-anchor="middle" font-size="11">№1</text>
+            <rect x="70" y="80" width="60" height="46" fill="#F0DED6" stroke="var(--stall)"/>
+            <text x="100" y="100" text-anchor="middle" font-size="11">процесс</text>
+            <text x="100" y="116" text-anchor="middle" font-size="11">№2</text>
+            <rect x="140" y="80" width="60" height="46" fill="#F0DED6" stroke="var(--stall)"/>
+            <text x="170" y="100" text-anchor="middle" font-size="11">процесс</text>
+            <text x="170" y="116" text-anchor="middle" font-size="11">№3</text>
+          </g>
+          <text x="0" y="152" font-size="11.5" fill="var(--muted)">Полная изоляция и надёжность,</text>
+          <text x="0" y="170" font-size="11.5" fill="var(--muted)">но десятки мегабайт памяти</text>
+          <text x="0" y="188" font-size="11.5" fill="var(--muted)">на каждое соединение.</text>
+
+          <line x1="240" y1="10" x2="240" y2="230" stroke="var(--hair)"/>
+
+          <!-- 2 -->
+          <text x="264" y="16" font-size="13" font-weight="600">Пул потоков</text>
+          <rect x="264" y="30" width="180" height="26" fill="var(--panel)" stroke="var(--hair)"/>
+          <text x="354" y="47" text-anchor="middle" font-size="11.5">очередь соединений</text>
+          <g>
+            <rect x="264" y="80" width="54" height="46" fill="#E4E9E3" stroke="var(--hair)"/>
+            <text x="291" y="107" text-anchor="middle" font-size="11">поток 1</text>
+            <rect x="327" y="80" width="54" height="46" fill="#E4E9E3" stroke="var(--hair)"/>
+            <text x="354" y="107" text-anchor="middle" font-size="11">поток 2</text>
+            <rect x="390" y="80" width="54" height="46" fill="#E4E9E3" stroke="var(--hair)"/>
+            <text x="417" y="107" text-anchor="middle" font-size="11">поток N</text>
+          </g>
+          <text x="264" y="152" font-size="11.5" fill="var(--muted)">Потоки переиспользуются, память</text>
+          <text x="264" y="170" font-size="11.5" fill="var(--muted)">общая. Потолок — размер пула,</text>
+          <text x="264" y="188" font-size="11.5" fill="var(--muted)">в CPython мешает GIL.</text>
+
+          <line x1="484" y1="10" x2="484" y2="230" stroke="var(--hair)"/>
+
+          <!-- 3 -->
+          <text x="508" y="16" font-size="13" font-weight="600">Цикл событий</text>
+          <circle cx="560" cy="103" r="34" fill="none" stroke="var(--wire)" stroke-width="2"/>
+          <text x="560" y="100" text-anchor="middle" font-size="11" fill="#0B4A45">один</text>
+          <text x="560" y="114" text-anchor="middle" font-size="11" fill="#0B4A45">поток</text>
+          <g stroke="var(--wire)" stroke-width="1.4">
+            <line x1="596" y1="85" x2="648" y2="72"/>
+            <line x1="596" y1="103" x2="648" y2="103"/>
+            <line x1="596" y1="121" x2="648" y2="134"/>
+          </g>
+          <g fill="var(--wire)">
+            <circle cx="654" cy="71" r="4"/><circle cx="654" cy="103" r="4"/><circle cx="654" cy="134" r="4"/>
+          </g>
+          <text x="666" y="76" font-size="11" fill="var(--muted)">сокеты</text>
+          <text x="508" y="152" font-size="11.5" fill="var(--muted)">Тысячи соединений на одном</text>
+          <text x="508" y="170" font-size="11.5" fill="var(--muted)">потоке; любой синхронный</text>
+          <text x="508" y="188" font-size="11.5" fill="var(--muted)">вызов останавливает всех.</text>
+        </g>
+      </svg>
+      </div>
+      <figcaption>Схема 3. Модели различаются не тем, что они делают, а тем, чем занят процессор, пока запрос ждёт ввода-вывода.</figcaption>
+    </figure>
+
+    <table>
+      <tr><th>Модель</th><th>Кто обслуживает запрос</th><th>Типичные представители</th></tr>
+      <tr><td>Процесс на запрос</td><td>отдельный процесс ОС</td><td>Apache prefork, Gunicorn (sync)</td></tr>
+      <tr><td>Пул потоков</td><td>поток из заранее созданного пула</td><td><code>ThreadingHTTPServer</code>, Gunicorn gthread, Waitress</td></tr>
+      <tr><td>Цикл событий</td><td>корутина в одном потоке</td><td>Nginx, Uvicorn, <code>aiohttp</code></td></tr>
+    </table>
+
+    <p>В стандартной библиотеке есть <code>http.server</code> — учебный однопоточный сервер, для продакшена он не предназначен. Реальная схема: Nginx принимает соединения и отдаёт статику, а динамику передаёт серверу приложений (Gunicorn, Uvicorn), который уже общается с кодом на Python через WSGI или ASGI.</p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="section">
+  <div class="rail"><div class="node">4</div></div>
+  <div class="body">
+    <h2>WebSocket: постоянный двусторонний канал</h2>
+    <p class="q">Что такое WebSocket и чем его реализация в Python отличается от классического HTTP?</p>
+
+    <p>WebSocket (RFC 6455) решает проблему, которую HTTP не решает по своей природе: сервер не может заговорить первым. Соединение начинается как обычный HTTP-запрос с заголовком <code>Upgrade: websocket</code>, сервер отвечает статусом <code>101 Switching Protocols</code> — и то же самое TCP-соединение дальше живёт по другим правилам: кадры (frames) летят в обе стороны, пока одна из сторон не закроет канал.</p>
+
+    <figure>
+      <div class="scroll">
+      <svg viewBox="0 0 720 360" role="img" aria-label="Схема рукопожатия WebSocket и обмена кадрами">
+        <g font-family="IBM Plex Sans, sans-serif" font-size="13" fill="var(--ink)">
+          <rect x="70" y="10" width="140" height="28" fill="var(--panel)" stroke="var(--hair)"/>
+          <text x="140" y="29" text-anchor="middle" font-size="13.5" font-weight="600">Браузер</text>
+          <rect x="510" y="10" width="140" height="28" fill="var(--panel)" stroke="var(--hair)"/>
+          <text x="580" y="29" text-anchor="middle" font-size="13.5" font-weight="600">Сервер</text>
+          <line x1="140" y1="38" x2="140" y2="344" stroke="var(--hair)" stroke-width="2"/>
+          <line x1="580" y1="38" x2="580" y2="344" stroke="var(--hair)" stroke-width="2"/>
+
+          <text x="0" y="62" font-size="11.5" fill="var(--muted)">фаза HTTP</text>
+          <line x1="146" y1="80" x2="572" y2="80" stroke="var(--wire)" stroke-width="1.6" marker-end="url(#ar)"/>
+          <text x="360" y="74" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5">GET /ws · Upgrade: websocket · Sec-WebSocket-Key</text>
+          <line x1="574" y1="116" x2="148" y2="116" stroke="var(--wire)" stroke-width="1.6" marker-end="url(#ar)"/>
+          <text x="360" y="110" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11.5">101 Switching Protocols · Sec-WebSocket-Accept</text>
+
+          <line x1="0" y1="140" x2="720" y2="140" stroke="var(--hair)" stroke-dasharray="6 5"/>
+          <text x="0" y="164" font-size="11.5" fill="var(--muted)">фаза кадров</text>
+
+          <rect x="140" y="150" width="440" height="150" fill="#EEF4F1" stroke="var(--wire)" stroke-dasharray="4 4"/>
+          <text x="360" y="172" text-anchor="middle" font-size="12" fill="#0B4A45">то же TCP-соединение остаётся открытым</text>
+
+          <line x1="146" y1="204" x2="572" y2="204" stroke="var(--wire)" stroke-width="1.6" marker-end="url(#ar)"/>
+          <text x="360" y="198" text-anchor="middle" font-size="12">кадр: сообщение пользователя</text>
+          <line x1="574" y1="238" x2="148" y2="238" stroke="var(--wire)" stroke-width="1.6" marker-end="url(#ar)"/>
+          <text x="360" y="232" text-anchor="middle" font-size="12">кадр: сервер шлёт сам, без запроса</text>
+          <line x1="574" y1="272" x2="148" y2="272" stroke="var(--wire)" stroke-width="1.6" marker-end="url(#ar)"/>
+          <text x="360" y="266" text-anchor="middle" font-size="12">кадр: обновление котировки, ping/pong</text>
+
+          <line x1="146" y1="330" x2="572" y2="330" stroke="var(--stall)" stroke-width="1.6" marker-end="url(#arb)"/>
+          <text x="360" y="324" text-anchor="middle" font-size="12" fill="var(--stall)">close frame (код 1000) → TCP закрывается</text>
+        </g>
+      </svg>
+      </div>
+      <figcaption>Схема 4. Рукопожатие ведётся по HTTP — поэтому WebSocket проходит через порты 80/443 и обычные прокси, — а дальше протокол становится симметричным.</figcaption>
+    </figure>
+
+    <h3>Чем отличается реализация в Python</h3>
+    <p>Классический синхронный стек Python устроен под HTTP: WSGI-приложение — это функция, которая один раз получает запрос и один раз возвращает ответ. Долгоживущего соединения в этой модели просто нет, поэтому WebSocket на WSGI не реализуется. Отсюда и появился <b>ASGI</b> — асинхронный интерфейс с событиями <code>receive</code> / <code>send</code> и типом соединения <code>websocket</code>.</p>
+
+    <ul>
+      <li><b>Соединение вместо запроса.</b> Обработчик живёт всё время сессии и хранит состояние: кто подключён, в какой комнате, что уже отправлено.</li>
+      <li><b>Только асинхронный стек.</b> <code>websockets</code>, <code>aiohttp</code>, FastAPI / Starlette, Django Channels; запускается через Uvicorn, Daphne или Hypercorn — не через Gunicorn sync.</li>
+      <li><b>Своя маршрутизация.</b> В HTTP роутинг по URL и методу, в WebSocket URL один, а «команды» приложение раскладывает само — обычно JSON внутри кадра.</li>
+      <li><b>Масштабирование сложнее.</b> Соединения привязаны к процессу, поэтому для рассылки между воркерами нужен внешний слой (Redis pub/sub в Channels).</li>
+      <li><b>Нет кеширования и идемпотентности.</b> Всё, что в HTTP давал протокол, — коды статусов, повторные запросы, кеш — здесь реализует само приложение.</li>
+    </ul>
+
+    <pre><code>import asyncio, websockets
+
+async def handler(ws):                <span class="cmt"># живёт, пока клиент подключён</span>
+    async for message in ws:          <span class="cmt"># поток кадров, а не один запрос</span>
+        await ws.send(f"эхо: {message}")
+
+async def main():
+    async with websockets.serve(handler, "0.0.0.0", 8765):
+        await asyncio.Future()
+
+asyncio.run(main())</code></pre>
+
+    <h3>Где какой подход применим</h3>
+    <table>
+      <tr><th></th><th>HTTP-запрос</th><th>WebSocket</th></tr>
+      <tr><td>Инициатор</td><td>только клиент</td><td>обе стороны</td></tr>
+      <tr><td>Соединение</td><td>короткое (или keep-alive на несколько запросов)</td><td>постоянное, минуты и часы</td></tr>
+      <tr><td>Состояние</td><td>без состояния</td><td>с состоянием на стороне сервера</td></tr>
+      <tr><td>Формат</td><td>текстовые заголовки + тело</td><td>бинарные кадры, минимум накладных расходов</td></tr>
+      <tr><td>Подходит для</td><td>REST API, формы, статика, документы, всё кешируемое</td><td>чаты, уведомления, онлайн-дашборды и торговые стаканы, игры, совместное редактирование</td></tr>
+    </table>
+
+    <p>Практическое правило: если данные нужны по запросу пользователя — берём HTTP; если обновления приходят от сервера чаще, чем пользователь готов нажимать «обновить», — WebSocket. Когда поток нужен только в одну сторону (лента событий, прогресс задачи), достаточно более простого Server-Sent Events поверх обычного HTTP.</p>
+  </div>
+</section>
+
+<footer>
+  <p><b>Вывод.</b> Вся эволюция — это надстройки над одним и тем же потоком байтов в TCP-сокете. Сокеты дают транспорт, но не дают границ сообщений; HTTP добавляет границы и семантику запроса-ответа; модели процессов, потоков и цикла событий решают, как обслуживать много таких обменов одновременно; WebSocket снимает последнее ограничение — одностороннюю инициативу — и требует за это асинхронного стека и ручного управления состоянием.</p>
+  <ul>
+    <li>Документация Python: <code>socket</code>, <code>selectors</code>, <code>asyncio</code>, <code>http.server</code></li>
+    <li>RFC 6455 — The WebSocket Protocol; RFC 9110 — HTTP Semantics</li>
+    <li>Спецификация ASGI, библиотека <code>websockets</code></li>
+  </ul>
+</footer>
+
+</div>
+</body>
+</html>
